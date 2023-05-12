@@ -1,0 +1,5 @@
+# dependencies
+/node_modules
+/docs
+/public/uploads/*
+!/public/uploads/default.jpeg
