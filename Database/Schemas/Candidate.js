@@ -24,6 +24,10 @@ const CandidateSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please add experience"],
   },
+  currentCompanies: {
+    type: [mongoose.Schema.ObjectId],
+    ref: "Company",
+  },
   lastSalaryMonth: {
     type: String,
     required: [true, "Please add lastSalaryMont"],

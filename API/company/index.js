@@ -1,7 +1,7 @@
-const CandidateCompanyController = require("./company.controller");
-const CandidateCompanyRoute = require("./company.route");
+const CompanyController = require("./company.controller");
+const CompanyRoute = require("./company.route");
 
 module.exports = {
-  CandidateCompanyController,
-  CandidateCompanyRoute,
+  CompanyController,
+  CompanyRoute,
 };

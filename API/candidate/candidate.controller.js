@@ -1,13 +1,17 @@
 const { asyncHandler } = require("../../middleware");
 const { Schemas } = require("../../Database");
-const { Candidate, CandidateCompany } = Schemas;
+const { Candidate, CandidateCompany, Company } = Schemas;
 const { advanceSearch, ErrorResponse } = require("../../utils");
-
+const _ = require("lodash");
 exports.createCandidate = asyncHandler(async (req, res, next) => {
   req.body["userId"] = req.user["_id"];
-  let candidateCompany = req.body.currentCompany;
-  delete req.body["currentCompany"];
-  const createdCandidate = await Candidate.create(req.body);
+  let candidateCompany = req.body.currentCompanies;
+  let candidateId = _.map(candidateCompany, "companyId");
+  const candidate = {
+    ...req.body,
+    currentCompanies: candidateId,
+  };
+  const createdCandidate = await Candidate.create(candidate);
   if (createdCandidate) {
     candidateCompany = candidateCompany.map((company) => {
       return {
@@ -28,8 +32,10 @@ exports.createCandidate = asyncHandler(async (req, res, next) => {
 exports.getCandidates = asyncHandler(async (req, res, next) => {
   // use of advanceSearch Utils
   const searchResult = await advanceSearch(req.query, Candidate, {
-    path: "candidateId",
+    path: "currentCompanies",
+    select: ["name"],
   });
+
   res.status(200).json({
     ...searchResult,
   });
@@ -92,12 +98,16 @@ exports.deleteCandidate = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCandidateById = asyncHandler(async (req, res, next) => {
-  const candidate = await Candidate.findById(req.params.candidate_id);
+  let candidate = await Candidate.findById(req.params.candidate_id).lean();
   const candiDateCompany = await CandidateCompany.find({
     candidateId: req.params.candidate_id,
-  });
-  console.log("candidate", candidate);
-  console.log("candiDateCompany", candiDateCompany);
+  }).populate({ path: "companyId", select: ["name"] });
+
+  candidate = {
+    ...candidate,
+    currentCompanies: candiDateCompany,
+  };
+
   if (!candidate) {
     return next(
       new ErrorResponse(

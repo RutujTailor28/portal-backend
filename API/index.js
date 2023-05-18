@@ -5,7 +5,11 @@ const CountryModule = require("./country");
 const RoleModule = require("./role");
 const CarModule = require("./cars");
 const CandidateModule = require("./candidate");
-const CandidateCompanyModule = require("./company");
+const CandidateCompanyModule = require("./candidateCompany");
+const CompanyModule = require("./company");
+const TechnologiesModule = require("./Technologies");
+const SalaryModule = require("./salary");
+const StatusModule = require("./status");
 
 const router = require("./routers");
 
@@ -18,5 +22,9 @@ module.exports = {
   CarModule,
   CandidateModule,
   CandidateCompanyModule,
+  CompanyModule,
+  TechnologiesModule,
+  SalaryModule,
+  StatusModule,
   router,
 };

@@ -1,84 +1,84 @@
 const { asyncHandler } = require("../../middleware");
 const { Schemas } = require("../../Database");
-const { CandidateCompany } = Schemas;
+const { Company } = Schemas;
 const { advanceSearch, ErrorResponse } = require("../../utils");
 
-exports.createCandidateCompany = asyncHandler(async (req, res, next) => {
+exports.createCompany = asyncHandler(async (req, res, next) => {
   req.body["userId"] = req.user["_id"];
-  const candidateCompany = await CandidateCompany.create(req.body);
-  // const findCar = await Candidate.findById(candidate["_id"]).populate({path: "userId", select: ["firstName", "middleName", "lastName"]});
-  res.status(201).json({ success: true, data: candidateCompany });
+  const company = await Company.create(req.body);
+  res.status(201).json({ success: true, data: company });
 });
 
-exports.getCandidatesCompany = asyncHandler(async (req, res, next) => {
+exports.getCompany = asyncHandler(async (req, res, next) => {
   // use of advanceSearch Utils
-  const searchResult = await advanceSearch(req.query, CandidateCompany);
+  const searchResult = await advanceSearch(req.query, Company, {
+    path: "technologies",
+    select: ["name"],
+  });
   res.status(200).json({
     ...searchResult,
   });
 });
 
-exports.updateCandidateCompany = asyncHandler(async (req, res, next) => {
-  const candidateCompany = await CandidateCompany.findById(
-    req.params.candidateCompany_id
-  );
-  if (!candidateCompany) {
-    return next(
-      new ErrorResponse(
-        `Candidate company is not found with id of ${req.params.candidateCompany_id}`,
-        404
-      )
-    );
+exports.updateCompany = asyncHandler(async (req, res, next) => {
+  const company = await Company.findById(req.params.company_id);
+
+  if (!company) {
+    return next(new ErrorResponse(`Company not found`, 404));
   }
 
-  const { companyId, candidateId, joinDate, position, salary } = req.body;
+  const {
+    name,
+    gstNumber,
+    address,
+    branch,
+    state,
+    district,
+    city,
+    pincode,
+    technologies,
+    contactDetails,
+  } = req.body;
 
-  candidate.companyId = companyId;
-  candidate.candidateId = candidateId;
-  candidate.joinDate = joinDate;
-  candidate.position = position;
-  candidate.salary = salary;
+  company.name = name;
+  company.gstNumber = gstNumber;
+  company.address = address;
+  company.branch = branch;
+  company.state = state;
+  company.district = district;
+  company.district = city;
+  company.pincode = pincode;
+  company.technologies = technologies;
+  company.contactDetails = contactDetails;
 
-  await candidateCompany.save();
+  await company.save();
 
-  res.status(200).json({ success: true, data: candidateCompany });
+  res.status(200).json({ success: true, data: company });
 });
 
-exports.deleteCandidateCompany = asyncHandler(async (req, res, next) => {
-  const candidateCompany = await CandidateCompany.findById(
-    req.params.candidateCompany_id
-  );
+exports.deleteCompany = asyncHandler(async (req, res, next) => {
+  const company = await Company.findById(req.params.company_id);
 
-  if (!candidate) {
-    return next(
-      new ErrorResponse(
-        `Candidate company is not found with id of ${req.params.candidateCompany_id}`,
-        404
-      )
-    );
+  if (!company) {
+    return next(new ErrorResponse(`Company not found`, 404));
   }
 
-  await candidateCompany.remove();
+  await Company.remove();
 
   res.status(200).json({
     success: true,
     data: {
-      message: "Candidate Company is Deleted",
+      message: "Company is Deleted",
     },
   });
 });
 
-exports.getCandidateCompanyById = asyncHandler(async (req, res, next) => {
-  const candidate = await CandidateCompany.findById(req.params.candidate_id);
+exports.getCompanyById = asyncHandler(async (req, res, next) => {
+  const company = await Company.findById(req.params.company_id);
 
-  if (!candidate) {
-    return next(
-      new ErrorResponse(
-        `Candidate is not found with id of ${req.params.candidate_id}`,
-        404
-      )
-    );
+  if (!company) {
+    return next(new ErrorResponse(`Company not found`, 404));
   }
 
-  res.status(200).json({ success: true, data: candidate });
+  res.status(200).json({ success: true, data: company });
 });

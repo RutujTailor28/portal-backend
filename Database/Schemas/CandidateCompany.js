@@ -11,15 +11,13 @@ const CandidateCompanySchema = new mongoose.Schema({
   },
   companyId: {
     type: mongoose.Schema.ObjectId,
-    ref: '',
-   
+    ref: "Company",
   },
   candidateId: {
-    type: mongoose.Schema.ObjectId,
-    
+    type: String,
   },
   joinDate: {
-    type: String,
+    type: Date,
     required: [true, "Please add  joining date"],
   },
   position: {

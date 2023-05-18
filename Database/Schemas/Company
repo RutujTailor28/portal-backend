@@ -1,0 +1,52 @@
+/**
+ * @module Database/Schemas
+ */
+const mongoose = require("mongoose");
+
+const Company = new mongoose.Schema({
+  // userId is id from current loggedIn User.
+  userId: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+  },
+  name: {
+    type: String,
+    required: [true, "Please add  name"],
+  },
+  gstNumber: {
+    type: String,
+  },
+  address: {
+    type: String,
+    required: [true, "Please add  address"],
+  },
+  branch: {
+    type: String,
+  },
+  state: {
+    type: String,
+  },
+  district: {
+    type: String,
+  },
+  city: {
+    type: String,
+  },
+  pincode: {
+    type: String,
+  },
+  technologies: {
+    type: [mongoose.Schema.ObjectId],
+    ref: "Technologies",
+  },
+  contactDetails: {
+    type: Array,
+    default: [],
+  },
+  createdDate: {
+    type: Date,
+    default: Date.now(),
+  },
+});
+
+module.exports = mongoose.model("Company", Company);

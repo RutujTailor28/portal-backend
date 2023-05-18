@@ -66,9 +66,7 @@ exports.authorize = (roles) => {
 
 // Grant access to specific role
 exports.checkPermission = (...permissions) => {
-  // console.log("permissions ==> ", permissions);
   return (req, res, next) => {
-    // console.log("permission", req.user.roleId.permissions);
     const allPermission = [
       ...req.user.roleId.permissions,
       ...req.user.otherPermission,

@@ -11,7 +11,11 @@ const Car = require("./Car");
 const CarWash = require("./CarWash");
 const WashStatus = require("./WashStatus");
 const Candidate = require("./Candidate");
-const CandidateCompany = require("./Company");
+const CandidateCompany = require("./CandidateCompany");
+const Company = require("./Company");
+const Technologies = require("./Technologies");
+const Salary = require("./Salary");
+const Status = require("./Status");
 
 module.exports = {
   Todo,
@@ -28,4 +32,8 @@ module.exports = {
   WashStatus,
   Candidate,
   CandidateCompany,
+  Company,
+  Technologies,
+  Status,
+  Salary,
 };

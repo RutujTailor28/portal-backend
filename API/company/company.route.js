@@ -3,15 +3,15 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  createCandidateCompany,
-  deleteCandidateCompany,
-  getCandidateCompanyById,
-  getCandidatesCompany,
-  updateCandidateCompany,
+  createCompany,
+  getCompany,
+  deleteCompany,
+  getCompanyById,
+  updateCompany,
 } = require("./company.controller");
 
 const { Schemas } = require("../../Database");
-const { CandidateCompany } = Schemas;
+const { Company } = Schemas;
 
 const { advancedResults, auth } = require("../../middleware");
 const { protect, authorize, checkPermission } = auth;
@@ -21,17 +21,13 @@ router.use(authorize(["admin", "normal user", "cleaner"]));
 
 router
   .route("/")
-  .get(
-    checkPermission("list_candidateCompany"),
-    advancedResults(CandidateCompany),
-    getCandidatesCompany
-  )
-  .post(checkPermission("create_candidateCompany"), createCandidateCompany);
+  .get(checkPermission("list_company"), advancedResults(Company), getCompany)
+  .post(checkPermission("create_company"), createCompany);
 
 router
-  .route("/:candidate_id")
-  .get(checkPermission("view_candidateCompany"), getCandidateCompanyById)
-  .put(checkPermission("update_candidateCompany"), updateCandidateCompany)
-  .delete(checkPermission("delete_candidateCompany"), deleteCandidateCompany);
+  .route("/:company_id")
+  .get(checkPermission("view_candidateCompany"), getCompanyById)
+  .put(checkPermission("update_candidateCompany"), updateCompany)
+  .delete(checkPermission("delete_candidateCompany"), deleteCompany);
 
 module.exports = router;
