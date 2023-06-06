@@ -17,8 +17,9 @@ const CandidateSchema = new mongoose.Schema({
     required: [true, "Please add  mobile"],
   },
   technology: {
-    type: String,
+    type: [mongoose.Schema.ObjectId],
     required: [true, "Please add technology"],
+    ref: "Technologies",
   },
   experience: {
     type: String,
@@ -27,6 +28,14 @@ const CandidateSchema = new mongoose.Schema({
   currentCompanies: {
     type: [mongoose.Schema.ObjectId],
     ref: "Company",
+  },
+  city: {
+    type: [mongoose.Schema.ObjectId],
+    ref: "City",
+  },
+  state: {
+    type: [mongoose.Schema.ObjectId],
+    ref: "State",
   },
   lastSalaryMonth: {
     type: String,

@@ -15,6 +15,8 @@ const { CompanyRoute } = require("./company");
 const { TechnologiesRoute } = require("./Technologies");
 const { SalaryRoute } = require("./salary");
 const { StatusRoute } = require("./status");
+const { CityRoute } = require("../API/city");
+const { StateRoute } = require("../API/state");
 
 routers.get("/", (req, res, next) => {
   return res.send(`Server is working fine at ${new Date()}`);
@@ -33,5 +35,7 @@ routers.use("/company", CompanyRoute);
 routers.use("/technologies", TechnologiesRoute);
 routers.use("/salary", SalaryRoute);
 routers.use("/status", StatusRoute);
+routers.use("/city", CityRoute);
+routers.use("/state", StateRoute);
 
 module.exports = routers;

@@ -19,15 +19,9 @@ router.use(authorize(["admin", "normal user", "cleaner"]));
 
 router
   .route("/")
-  .get(
-    checkPermission("list_technologies"),
-    advancedResults(Technologies),
-    getTechnologies
-  )
-  .post(checkPermission("create_technologies"), createTechnologies);
+  .get(advancedResults(Technologies), getTechnologies)
+  .post(createTechnologies);
 
-router
-  .route("/:technology_id")
-  .delete(checkPermission("delete_technologies"), deleteTechnologies);
+router.route("/:technology_id").delete(deleteTechnologies);
 
 module.exports = router;

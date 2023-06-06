@@ -1,13 +1,18 @@
 /**
  * @module authController
  */
-'use strict';
-const crypto = require('crypto');
-const { ErrorResponse, getCustomStructureUserData, userCommonPopulateFields } = require('../../utils');
-const { asyncHandler } = require('../../middleware');
-const { Schemas } = require('../../Database');
-const sendEmail = require('../../utils/sendEmail');
+"use strict";
+const crypto = require("crypto");
+const {
+  ErrorResponse,
+  getCustomStructureUserData,
+  userCommonPopulateFields,
+} = require("../../utils");
+const { asyncHandler } = require("../../middleware");
+const { Schemas } = require("../../Database");
+const sendEmail = require("../../utils/sendEmail");
 const { User, UserDevice, Role } = Schemas;
+const _ = require("lodash");
 
 /**
  * @method register
@@ -22,7 +27,9 @@ const { User, UserDevice, Role } = Schemas;
  */
 exports.register = asyncHandler(async (req, res, next) => {
   const user = await User.create(req.body);
-  const findUser = await User.findById(user["_id"]).populate([...userCommonPopulateFields]);
+  const findUser = await User.findById(user["_id"]).populate([
+    ...userCommonPopulateFields,
+  ]);
 
   sendTokenResponse(findUser, 200, res);
 });
@@ -42,15 +49,20 @@ exports.register = asyncHandler(async (req, res, next) => {
  *       login(req, res, next)
  */
 exports.login = asyncHandler(async (req, res, next) => {
-  const { username: emailOrPhone, password, deviceToken, isWeb = false } = req.body;
+  const {
+    username: emailOrPhone,
+    password,
+    deviceToken,
+    isWeb = false,
+  } = req.body;
 
   //Validate email & password & deviceToken
   if (!emailOrPhone || !password) {
-    return next(new ErrorResponse('Please provide all details', 400));
+    return next(new ErrorResponse("Please provide all details", 400));
   }
 
   if (!isWeb && !deviceToken) {
-    return next(new ErrorResponse('Please provide all details', 400));
+    return next(new ErrorResponse("Please provide all details", 400));
   }
 
   const emailRegex = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
@@ -58,32 +70,40 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   let user = null;
 
-  if (emailOrPhone.match(emailRegex)){
-    user = await User.findOne({ email: emailOrPhone }).select('+password').populate([...userCommonPopulateFields]);
-  }else if (emailOrPhone.match(phoneRegex)){
-    user = await User.findOne({ phone: emailOrPhone }).select('+password').populate([...userCommonPopulateFields]);
+  if (emailOrPhone.match(emailRegex)) {
+    user = await User.findOne({ email: emailOrPhone })
+      .select("+password")
+      .populate([...userCommonPopulateFields]);
+  } else if (emailOrPhone.match(phoneRegex)) {
+    user = await User.findOne({ phone: emailOrPhone })
+      .select("+password")
+      .populate([...userCommonPopulateFields]);
   }
 
   if (!user) {
-    return next(new ErrorResponse('Invalid credentials', 401));
+    return next(new ErrorResponse("Invalid credentials", 401));
   }
 
   const isMatch = await user.matchPassword(password);
 
   if (!isMatch) {
-    return next(new ErrorResponse('Invalid credentials', 401));
+    return next(new ErrorResponse("Invalid credentials", 401));
   }
 
-  if (!isWeb){
-    const isDeviceTokenExist = await UserDevice.findOne({userId: user['_id'], deviceToken});
+  if (!isWeb) {
+    const isDeviceTokenExist = await UserDevice.findOne({
+      userId: user["_id"],
+      deviceToken,
+    });
     // check deviceToken exist or not and if not then add it
     if (!isDeviceTokenExist) {
-      await UserDevice.create({userId: user['_id'], deviceToken})
+      await UserDevice.create({ userId: user["_id"], deviceToken });
     }
   }
 
-  user.loginCount = (user.loginCount + 1)
+  user.loginCount = user.loginCount + 1;
   await user.save();
+
   sendTokenResponse(user, 200, res);
 });
 
@@ -99,10 +119,12 @@ exports.login = asyncHandler(async (req, res, next) => {
  *       getMe(req, res, next)
  */
 exports.getMe = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id).populate([...userCommonPopulateFields]);
+  const user = await User.findById(req.user.id).populate([
+    ...userCommonPopulateFields,
+  ]);
   const updatedUserData = user.toObject();
   const structuredData = getCustomStructureUserData(updatedUserData);
-  res.status(200).json({ success: true, data: {...structuredData} });
+  res.status(200).json({ success: true, data: { ...structuredData } });
 });
 
 /**
@@ -120,7 +142,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
 
   if (!user) {
-    return next(new ErrorResponse('there is no user with that email', 404));
+    return next(new ErrorResponse("there is no user with that email", 404));
   }
 
   // Get reset password token
@@ -129,7 +151,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   const resetUrl = `${req.protocol}://${req.get(
-    'host'
+    "host"
   )}/auth/resetpassword/${resetToken}`;
 
   const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;
@@ -137,11 +159,11 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   try {
     await sendEmail({
       email: user.email,
-      subject: 'Password reset token',
+      subject: "Password reset token",
       message,
     });
 
-    res.status(200).json({ success: true, data: 'Email sent' });
+    res.status(200).json({ success: true, data: "Email sent" });
   } catch (err) {
     console.log(err);
     user.resetPasswordToken = undefined;
@@ -149,7 +171,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false });
 
-    return next(new ErrorResponse('Email could not be sent', 500));
+    return next(new ErrorResponse("Email could not be sent", 500));
   }
 
   res.status(200).json({ success: true, data: user });
@@ -168,9 +190,9 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
  */
 exports.resetPassword = asyncHandler(async (req, res, next) => {
   const resetPasswordToken = crypto
-    .createHash('sha256')
+    .createHash("sha256")
     .update(req.params.resettoken)
-    .digest('hex');
+    .digest("hex");
 
   const user = await User.findOne({
     resetPasswordToken,
@@ -178,7 +200,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   }).populate([...userCommonPopulateFields]);
 
   if (!user) {
-    return next(new ErrorResponse('Invalid token', 400));
+    return next(new ErrorResponse("Invalid token", 400));
   }
 
   user.password = req.body.password;
@@ -207,7 +229,7 @@ exports.updateDetails = asyncHandler(async (req, res, next) => {
     middleName: req.body.middleName,
     lastName: req.body.lastName,
     phone: req.body.phone,
-    email: req.body.email
+    email: req.body.email,
   };
 
   const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
@@ -217,7 +239,7 @@ exports.updateDetails = asyncHandler(async (req, res, next) => {
 
   const updatedUserData = user.toObject();
   const structuredData = getCustomStructureUserData(updatedUserData);
-  res.status(200).json({ success: true, data: {...structuredData} });
+  res.status(200).json({ success: true, data: { ...structuredData } });
 });
 
 //@desc   Update password
@@ -235,11 +257,13 @@ exports.updateDetails = asyncHandler(async (req, res, next) => {
  *       updatePassword(req, res, next)
  */
 exports.updatePassword = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select('+password').populate([...userCommonPopulateFields]);
+  const user = await User.findById(req.user.id)
+    .select("+password")
+    .populate([...userCommonPopulateFields]);
 
   // Check current password
   if (!(await user.matchPassword(req.body.currentPassword))) {
-    return next(new ErrorResponse('Password is incorrect', 401));
+    return next(new ErrorResponse("Password is incorrect", 401));
   }
 
   user.password = req.body.newPassword;
@@ -261,7 +285,7 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
  *       logout(req, res, next)
  */
 exports.logout = asyncHandler(async (req, res, next) => {
-  res.cookie('token', 'none', {
+  res.cookie("token", "none", {
     expire: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
   });
@@ -288,15 +312,24 @@ const sendTokenResponse = (user, statusCode, res) => {
     httpOnly: true,
   };
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     options.secure = true;
   }
 
   const updatedUserData = user.toObject();
-  const structuredData = getCustomStructureUserData(updatedUserData);
-  res.status(statusCode).cookie('token', token, options).json({
-    success: true,
-    token,
-    user: {...structuredData}
-  });
+  console.log("updatedUserData", updatedUserData);
+  let structuredData = getCustomStructureUserData(updatedUserData);
+  structuredData = {
+    ...structuredData,
+    permissions: _.map(structuredData.permissions, "permissionName"),
+  };
+
+  res
+    .status(statusCode)
+    .cookie("token", token, options)
+    .json({
+      success: true,
+      token,
+      user: { ...structuredData },
+    });
 };

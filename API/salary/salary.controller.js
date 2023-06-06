@@ -11,6 +11,7 @@ exports.createSalary = asyncHandler(async (req, res, next) => {
 
 exports.getSalary = asyncHandler(async (req, res, next) => {
   // use of advanceSearch Utils
+  console.log("res", res);
   const searchResult = await advanceSearch(req.query, Salary, [
     {
       path: "companyId",
@@ -80,7 +81,18 @@ exports.getSalaryById = asyncHandler(async (req, res, next) => {
   if (!salary) {
     return next(new ErrorResponse(`Salary record not found.`, 404));
   } else {
-    const salaryDetailsByName = await Salary.find({ name: salary.name });
+    const salaryDetailsByName = await Salary.find({
+      name: salary.name,
+    }).populate([
+      {
+        path: "companyId",
+        select: ["name"],
+      },
+      {
+        path: "paymentStatus",
+        select: ["status"],
+      },
+    ]);
     console.log("salaryDetailsByName", salaryDetailsByName);
     history = salaryDetailsByName.filter(
       (salary) => salary._id.toString() !== req.params.salary_id

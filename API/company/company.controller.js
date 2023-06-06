@@ -11,10 +11,11 @@ exports.createCompany = asyncHandler(async (req, res, next) => {
 
 exports.getCompany = asyncHandler(async (req, res, next) => {
   // use of advanceSearch Utils
-  const searchResult = await advanceSearch(req.query, Company, {
+  let searchResult = await advanceSearch(req.query, Company, {
     path: "technologies",
     select: ["name"],
   });
+
   res.status(200).json({
     ...searchResult,
   });

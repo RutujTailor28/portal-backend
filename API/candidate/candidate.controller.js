@@ -31,10 +31,24 @@ exports.createCandidate = asyncHandler(async (req, res, next) => {
 
 exports.getCandidates = asyncHandler(async (req, res, next) => {
   // use of advanceSearch Utils
-  const searchResult = await advanceSearch(req.query, Candidate, {
-    path: "currentCompanies",
-    select: ["name"],
-  });
+  const searchResult = await advanceSearch(req.query, Candidate, [
+    {
+      path: "currentCompanies",
+      select: ["name"],
+    },
+    {
+      path: "technology",
+      select: ["name"],
+    },
+    {
+      path: "city",
+      select: ["cityName"],
+    },
+    {
+      path: "state",
+      select: ["stateName"],
+    },
+  ]);
 
   res.status(200).json({
     ...searchResult,
@@ -98,7 +112,9 @@ exports.deleteCandidate = asyncHandler(async (req, res, next) => {
 });
 
 exports.getCandidateById = asyncHandler(async (req, res, next) => {
-  let candidate = await Candidate.findById(req.params.candidate_id).lean();
+  let candidate = await Candidate.findById(req.params.candidate_id)
+    .populate({ path: "technology", select: ["name"] })
+    .lean();
   const candiDateCompany = await CandidateCompany.find({
     candidateId: req.params.candidate_id,
   }).populate({ path: "companyId", select: ["name"] });

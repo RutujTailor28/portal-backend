@@ -21,7 +21,7 @@ router.use(authorize(["admin", "normal user", "cleaner"]));
 
 router
   .route("/")
-  .get(checkPermission("list_salary"), advancedResults(Salary), getSalary)
+  .get(checkPermission("list_salary"), getSalary)
   .post(checkPermission("create_salary"), createSalary);
 
 router

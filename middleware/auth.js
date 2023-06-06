@@ -71,6 +71,7 @@ exports.checkPermission = (...permissions) => {
       ...req.user.roleId.permissions,
       ...req.user.otherPermission,
     ];
+
     for (let permission of allPermission) {
       if (permissions.includes(permission.permissionName)) {
         return next();
