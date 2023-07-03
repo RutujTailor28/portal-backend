@@ -21,9 +21,13 @@ const CandidateSchema = new mongoose.Schema({
     required: [true, "Please add technology"],
     ref: "Technologies",
   },
-  experience: {
+  experienceYear: {
     type: String,
-    required: [true, "Please add experience"],
+    required: [true, "Please add experience year"],
+  },
+  experienceMonth: {
+    type: String,
+    required: [true, "Please add experience year"],
   },
   currentCompanies: {
     type: [mongoose.Schema.ObjectId],

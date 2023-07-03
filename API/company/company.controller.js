@@ -11,10 +11,20 @@ exports.createCompany = asyncHandler(async (req, res, next) => {
 
 exports.getCompany = asyncHandler(async (req, res, next) => {
   // use of advanceSearch Utils
-  let searchResult = await advanceSearch(req.query, Company, {
-    path: "technologies",
-    select: ["name"],
-  });
+  let searchResult = await advanceSearch(req.query, Company, [
+    {
+      path: "technologies",
+      select: ["name"],
+    },
+    {
+      path: "city",
+      select: ["cityName"],
+    },
+    {
+      path: "state",
+      select: ["stateName"],
+    },
+  ]);
 
   res.status(200).json({
     ...searchResult,
@@ -64,7 +74,7 @@ exports.deleteCompany = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Company not found`, 404));
   }
 
-  await Company.remove();
+  await company.remove();
 
   res.status(200).json({
     success: true,

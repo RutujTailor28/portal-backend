@@ -23,15 +23,18 @@ const Company = new mongoose.Schema({
   branch: {
     type: String,
   },
+  city: {
+    type: mongoose.Schema.ObjectId,
+    ref: "City",
+  },
   state: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
+    ref: "State",
   },
   district: {
     type: String,
   },
-  city: {
-    type: String,
-  },
+
   pincode: {
     type: String,
   },

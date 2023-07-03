@@ -3,6 +3,7 @@ const { Schemas } = require("../../Database");
 const { Candidate, CandidateCompany, Company } = Schemas;
 const { advanceSearch, ErrorResponse } = require("../../utils");
 const _ = require("lodash");
+
 exports.createCandidate = asyncHandler(async (req, res, next) => {
   req.body["userId"] = req.user["_id"];
   let candidateCompany = req.body.currentCompanies;
@@ -57,6 +58,7 @@ exports.getCandidates = asyncHandler(async (req, res, next) => {
 
 exports.updateCandidate = asyncHandler(async (req, res, next) => {
   const candidate = await Candidate.findById(req.params.candidate_id);
+
   if (!candidate) {
     return next(
       new ErrorResponse(
@@ -70,7 +72,8 @@ exports.updateCandidate = asyncHandler(async (req, res, next) => {
     name,
     mobile,
     technology,
-    experience,
+    experienceYear,
+    experienceMonth,
     currentCompanies,
     lastSalaryMonth,
     availableIn,
@@ -79,7 +82,8 @@ exports.updateCandidate = asyncHandler(async (req, res, next) => {
   candidate.name = name;
   candidate.mobile = mobile;
   candidate.technology = technology;
-  candidate.experience = experience;
+  candidate.experienceYear = experienceYear;
+  candidate.experienceMonth = experienceMonth;
   candidate.currentCompanies = currentCompanies;
   candidate.lastSalaryMonth = lastSalaryMonth;
   candidate.availableIn = availableIn;
@@ -89,9 +93,38 @@ exports.updateCandidate = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: candidate });
 });
 
+exports.addCompanyId = asyncHandler(async (req, res, next) => {
+  const candidate = await Candidate.findById(req.params.candidate_id);
+  if (!candidate) {
+    return next(
+      new ErrorResponse(
+        `Candidate is not found with id of ${req.params.candidate_id}`,
+        404
+      )
+    );
+  }
+
+  const { currentCompanies, operation } = req.body;
+
+  if (operation) {
+    candidate.currentCompanies = [
+      ...candidate.currentCompanies,
+      currentCompanies,
+    ];
+  } else {
+    candidate.currentCompanies = currentCompanies;
+  }
+
+  await candidate.save();
+
+  res.status(200).json({ success: true, data: candidate });
+});
+
 exports.deleteCandidate = asyncHandler(async (req, res, next) => {
   const candidate = await Candidate.findById(req.params.candidate_id);
-
+  const candidateCompanies = await CandidateCompany.find({
+    candidateId: req.params.candidate_id,
+  });
   if (!candidate) {
     return next(
       new ErrorResponse(
@@ -102,6 +135,9 @@ exports.deleteCandidate = asyncHandler(async (req, res, next) => {
   }
 
   await candidate.remove();
+  for (const candidateCompany of candidateCompanies) {
+    await candidateCompany.remove();
+  }
 
   res.status(200).json({
     success: true,

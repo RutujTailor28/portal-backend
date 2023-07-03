@@ -24,7 +24,7 @@ exports.deleteTechnologies = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Technologies not found`, 404));
   }
 
-  await Technologies.remove();
+  await technologies.remove();
 
   res.status(200).json({
     success: true,

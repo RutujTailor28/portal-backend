@@ -24,6 +24,10 @@ const CandidateCompanySchema = new mongoose.Schema({
     type: String,
     required: [true, "Please add position"],
   },
+  contract: {
+    type: String,
+    required: [true, "Please add contract"],
+  },
   salary: {
     type: String,
     required: [true, "Please add salary"],

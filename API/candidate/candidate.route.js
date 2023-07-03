@@ -8,6 +8,7 @@ const {
   updateCandidate,
   deleteCandidate,
   getCandidateById,
+  addCompanyId,
 } = require("./candidate.controller");
 
 const { Schemas } = require("../../Database");
@@ -31,7 +32,12 @@ router
 router
   .route("/:candidate_id")
   .get(checkPermission("list_candidate"), getCandidateById)
+
   .put(checkPermission("update_candidate"), updateCandidate)
   .delete(checkPermission("delete_candidate"), deleteCandidate);
+
+router
+  .route("/companyId/:candidate_id")
+  .put(checkPermission("update_candidate"), addCompanyId);
 
 module.exports = router;

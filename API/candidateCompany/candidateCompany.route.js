@@ -32,6 +32,6 @@ router
   .route("/:candidateCompany_id")
   .get(checkPermission("view_candidateCompany"), getCandidateCompanyById)
   .put(checkPermission("update_candidateCompany"), updateCandidateCompany)
-  .delete(checkPermission("delete_candidateCompany"), deleteCandidateCompany);
+  .post(checkPermission("delete_candidateCompany"), deleteCandidateCompany);
 
 module.exports = router;

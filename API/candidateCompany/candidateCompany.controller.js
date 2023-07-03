@@ -61,13 +61,8 @@ exports.deleteCandidateCompany = asyncHandler(async (req, res, next) => {
     req.params.candidateCompany_id
   );
 
-  if (!candidate) {
-    return next(
-      new ErrorResponse(
-        `Candidate Company is not found with provided candidate`,
-        404
-      )
-    );
+  if (!candidateCompany) {
+    return next(new ErrorResponse(`Candidate Company not found`, 404));
   }
 
   if (candidateCompany.candidateId !== req.body.candidateId) {

@@ -5,16 +5,19 @@ const advanceSearch = async (queryparams, model, populate, queryoption) => {
   let reqQuery = { ...queryparams };
 
   // Exclude field
-  const removeFields = ['select', 'sort', 'page', 'limit'];
+  const removeFields = ["select", "sort", "page", "limit"];
 
-  removeFields.forEach(param => delete reqQuery[param]);
+  removeFields.forEach((param) => delete reqQuery[param]);
 
   // Creating Qurey String
   let queryStr = JSON.stringify(reqQuery);
 
   // Generate JSON string for $gt, $gte and other operators
-  queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
-
+  queryStr = queryStr.replace(
+    /\b(gt|gte|lt|lte|in)\b/g,
+    (match) => `$${match}`
+  );
+  console.log("queryStr", queryStr);
   query = model.find(JSON.parse(queryStr));
   pagequery = model.find(JSON.parse(queryStr));
 
@@ -26,16 +29,16 @@ const advanceSearch = async (queryparams, model, populate, queryoption) => {
 
   // SELECT Fields
   if (queryparams.select) {
-    const fields = queryparams.select.split(',').join(' ');
+    const fields = queryparams.select.split(",").join(" ");
     query = query.select(fields);
   }
 
   // Sorting
   if (queryparams.sort) {
-    const sortBy = queryparams.sort.split(',').join(' ');
+    const sortBy = queryparams.sort.split(",").join(" ");
     query = query.sort(sortBy);
   } else {
-    query = query.sort('-createdAt');
+    query = query.sort("-createdAt");
   }
 
   // Pagination
